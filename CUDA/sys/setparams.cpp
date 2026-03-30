@@ -437,15 +437,17 @@ void get_info(char *argv[], int *typep, char *classp){
 void check_info(int type, char class_npb){
 	int tmplog; 
 	/* check class_npb */
-	if(class_npb != 'S' && 
-			class_npb != 'W' && 
-			class_npb != 'A' && 
-			class_npb != 'B' && 
-			class_npb != 'C' && 
+	if(class_npb != 'S' &&
+			class_npb != 'W' &&
+			class_npb != 'A' &&
+			class_npb != 'B' &&
+			class_npb != 'C' &&
 			class_npb != 'D' &&
-			class_npb != 'E'){
-		printf("setparams: Unknown benchmark class_npb %c\n", class_npb); 
+			class_npb != 'E' &&
+			!(class_npb == 'G' && type == CG)){
+		printf("setparams: Unknown benchmark class_npb %c\n", class_npb);
 		printf("setparams: Allowed classes are \"S\", \"W\", \"A\", \"B\", \"C\", \"D\" and \"E\"\n");
+		printf("setparams: For CG only, \"G\" is also allowed\n");
 		exit(1);
 	}
 	if((class_npb == 'E') && type == IS){
@@ -757,6 +759,7 @@ void write_cg_info(FILE *fp, char class_npb){
 	      *shiftB="60.0",
 	      *shiftC="110.0",
 	      *shiftD="500.0",
+	      *shiftG="750.0",
 	      *shiftE="1.5e3";
 
 	if(class_npb == 'S'){
@@ -771,6 +774,8 @@ void write_cg_info(FILE *fp, char class_npb){
 		na=150000; nonzer=15; niter=75; shift=shiftC;}
 	else if(class_npb == 'D'){
 		na=1500000; nonzer=21; niter=100; shift=shiftD;}
+	else if(class_npb == 'G'){
+		na=3000000; nonzer=23; niter=300; shift=shiftG;}
 	else if(class_npb == 'E'){
 		na=9000000; nonzer=26; niter=100; shift=shiftE;}
 	else{
