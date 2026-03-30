@@ -209,11 +209,11 @@ void profiling_flag(FILE* definitions_file){
 char* read_nvcc_cuda_version(){
 	FILE *file;
 	char command[64];
-	char result[64];
+	static char result[64];
 	char* pointer;
 	sprintf(command, "nvcc --version |grep release |awk '{print $6}'"); 
 	file = popen(command,"r"); 
-	fgets(result, 1024 , file);
+	fgets(result, sizeof(result) , file);
 	pointer=result;
 	strtok(pointer, "\n");
 	fclose(file);
