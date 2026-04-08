@@ -141,9 +141,9 @@ static double c_host[ISIZ2][ISIZ1/2*2+1][5][5];
 static double d_host[ISIZ2][ISIZ1/2*2+1][5][5];
 static double ce_host[13][5];
 #else
-static double (*u_host)[ISIZ2/2*2+1][ISIZ1/2*2+1][5]=(double(*)[ISIZ2/2*2+1][ISIZ1/2*2+1][5])malloc(sizeof(double)*((ISIZ3)*(ISIZ2/2*2+1)*(ISIZ1/2*2+1)*(5)));
-static double (*rsd_host)[ISIZ2/2*2+1][ISIZ1/2*2+1][5]=(double(*)[ISIZ2/2*2+1][ISIZ1/2*2+1][5])malloc(sizeof(double)*((ISIZ3)*(ISIZ2/2*2+1)*(ISIZ1/2*2+1)*(5)));
-static double (*frct_host)[ISIZ2/2*2+1][ISIZ1/2*2+1][5]=(double(*)[ISIZ2/2*2+1][ISIZ1/2*2+1][5])malloc(sizeof(double)*((ISIZ3)*(ISIZ2/2*2+1)*(ISIZ1/2*2+1)*(5)));
+static double (*u_host)[ISIZ2/2*2+1][ISIZ1/2*2+1][5]=(double(*)[ISIZ2/2*2+1][ISIZ1/2*2+1][5])malloc(sizeof(double)*((size_t)(ISIZ3)*(ISIZ2/2*2+1)*(ISIZ1/2*2+1)*(5)));
+static double (*rsd_host)[ISIZ2/2*2+1][ISIZ1/2*2+1][5]=(double(*)[ISIZ2/2*2+1][ISIZ1/2*2+1][5])malloc(sizeof(double)*((size_t)(ISIZ3)*(ISIZ2/2*2+1)*(ISIZ1/2*2+1)*(5)));
+static double (*frct_host)[ISIZ2/2*2+1][ISIZ1/2*2+1][5]=(double(*)[ISIZ2/2*2+1][ISIZ1/2*2+1][5])malloc(sizeof(double)*((size_t)(ISIZ3)*(ISIZ2/2*2+1)*(ISIZ1/2*2+1)*(5)));
 static double (*flux_host)[5]=(double(*)[5])malloc(sizeof(double)*((ISIZ1)*(5)));
 static double (*qs_host)[ISIZ2/2*2+1][ISIZ1/2*2+1]=(double(*)[ISIZ2/2*2+1][ISIZ1/2*2+1])malloc(sizeof(double)*((ISIZ3)*(ISIZ2/2*2+1)*(ISIZ1/2*2+1)));
 static double (*rho_i_host)[ISIZ2/2*2+1][ISIZ1/2*2+1]=(double(*)[ISIZ2/2*2+1][ISIZ1/2*2+1])malloc(sizeof(double)*((ISIZ3)*(ISIZ2/2*2+1)*(ISIZ1/2*2+1)));
@@ -3179,7 +3179,7 @@ static void setup_gpu(){
 		THREADS_PER_BLOCK_ON_SSOR_2 = gpu_device_properties.warpSize;
 	}
 
-	int gridsize=nx*ny*nz;
+	size_t gridsize=nx*ny*nz;
 	int norm_buf_size=max(5*(ny-2)*(nz-2), ((nx-3)*(ny-3)+(nx-3)*(nz-3)+(ny-3)*(nz-3))/((gpu_device_properties.maxThreadsPerBlock-1)*(gpu_device_properties.maxThreadsPerBlock-1))+3);
 	size_u_device=sizeof(double)*(5*gridsize);
 	size_rsd_device=sizeof(double)*(5*gridsize);
