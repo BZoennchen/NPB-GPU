@@ -78,7 +78,8 @@
  * include file, which is written by the sys/setparams.c program.
  * ---------------------------------------------------------------------
  */
-#define NZ (NA*(NONZER+1)*(NONZER+1))
+//#define NZ (NA*(NONZER+1)*(NONZER+1))
+#define NZ ((long)(NA)*(NONZER+1)*(NONZER+1))
 #define NAZ (NA*(NONZER+1))
 #define PROFILING_TOTAL_TIME (0)
 #define PROFILING_KERNEL_ONE (1)
@@ -122,7 +123,8 @@ static double (*q)=(double*)malloc(sizeof(double)*(NA+2));
 static double (*r)=(double*)malloc(sizeof(double)*(NA+2));
 #endif
 static int naa;
-static int nzz;
+//static int nzz;
+static long nzz;
 static int firstrow;
 static int lastrow;
 static int firstcol;
