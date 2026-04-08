@@ -775,7 +775,7 @@ void write_cg_info(FILE *fp, char class_npb){
 	else if(class_npb == 'D'){
 		na=1500000; nonzer=21; niter=100; shift=shiftD;}
 	else if(class_npb == 'G'){
-		na=3000000; nonzer=23; niter=300; shift=shiftG;}
+		na=3600000; nonzer=23; niter=300; shift=shiftG;}
 	else if(class_npb == 'E'){
 		na=9000000; nonzer=26; niter=100; shift=shiftE;}
 	else{
