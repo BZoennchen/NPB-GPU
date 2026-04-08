@@ -97,7 +97,7 @@
 /* global variables */
 #if defined(DO_NOT_ALLOCATE_ARRAYS_WITH_DYNAMIC_MEMORY_AND_AS_SINGLE_DIMENSION)
 static int colidx[NZ];
-static int rowstr[NA+1];
+static long rowstr[NA+1];
 static int iv[NA];
 static int arow[NA];
 static int acol[NAZ];
@@ -110,7 +110,7 @@ static double q[NA+2];
 static double r[NA+2];
 #else
 static int (*colidx)=(int*)malloc(sizeof(int)*(NZ));
-static int (*rowstr)=(int*)malloc(sizeof(int)*(NA+1));
+static long (*rowstr)=(long*)malloc(sizeof(long)*(NA+1));
 static int (*iv)=(int*)malloc(sizeof(int)*(NA));
 static int (*arow)=(int*)malloc(sizeof(int)*(NA));
 static int (*acol)=(int*)malloc(sizeof(int)*(NAZ));
@@ -133,7 +133,7 @@ static double amult;
 static double tran;
 /* gpu variables */
 int* colidx_device;
-int* rowstr_device;
+long* rowstr_device;
 double* a_device;
 double* p_device;
 double* q_device;
@@ -225,7 +225,7 @@ extern __shared__ double extern_share_data[];
 
 /* function prototypes */
 static void conj_grad(int colidx[],
-		int rowstr[],
+		long rowstr[],
 		double x[],
 		double z[],
 		double a[],
@@ -245,10 +245,10 @@ __global__ void gpu_kernel_two(double r[],
 		double* rho, 
 		double global_data[]);
 static void gpu_kernel_three();
-__global__ void gpu_kernel_three(int colidx[], 
-		int rowstr[], 
-		double a[], 
-		double p[], 
+__global__ void gpu_kernel_three(int colidx[],
+		long rowstr[],
+		double a[],
+		double p[],
 		double q[]);
 static void gpu_kernel_four(double* d_host);
 __global__ void gpu_kernel_four(double* d, 
@@ -270,10 +270,10 @@ __global__ void gpu_kernel_seven(double beta,
 		double* p, 
 		double* r);
 static void gpu_kernel_eight();
-__global__ void gpu_kernel_eight(int colidx[], 
-		int rowstr[], 
-		double a[], 
-		double r[], 
+__global__ void gpu_kernel_eight(int colidx[],
+		long rowstr[],
+		double a[],
+		double r[],
 		double* z);
 static void gpu_kernel_nine(double* sum_host);
 __global__ void gpu_kernel_nine(double r[],
@@ -295,10 +295,10 @@ __global__ void gpu_kernel_eleven(double norm_temp2,
 static int icnvrt(double x,
 		int ipwr2);
 static void makea(int n,
-		int nz,
+		long nz,
 		double a[],
 		int colidx[],
-		int rowstr[],
+		long rowstr[],
 		int firstrow,
 		int lastrow,
 		int firstcol,
@@ -311,9 +311,9 @@ static void release_gpu();
 static void setup_gpu();
 static void sparse(double a[],
 		int colidx[],
-		int rowstr[],
+		long rowstr[],
 		int n,
-		int nz,
+		long nz,
 		int nozer,
 		int arow[],
 		int acol[][NONZER+1],
@@ -343,7 +343,8 @@ int main(int argc, char** argv){
 #if defined(PROFILING)
 	printf(" PROFILING mode on\n");
 #endif
-	int	i, j, k, it;
+	int	i, j, it;
+	long k;
 	double zeta;
 	double rnorm;
 	double norm_temp1, norm_temp2;
@@ -653,7 +654,7 @@ int main(int argc, char** argv){
  * ---------------------------------------------------------------------
  */
 static void conj_grad(int colidx[],
-		int rowstr[],
+		long rowstr[],
 		double x[],
 		double z[],
 		double a[],
@@ -661,7 +662,8 @@ static void conj_grad(int colidx[],
 		double q[],
 		double r[],
 		double* rnorm){
-	int j, k;
+	int j;
+	long k;
 	int cgit, cgitmax;
 	double d, sum, rho, rho0, alpha, beta;
 
@@ -936,20 +938,20 @@ static void gpu_kernel_three(){
 #endif
 }
 
-__global__ void gpu_kernel_three(int colidx[], 
-		int rowstr[], 
-		double a[], 
-		double p[], 
+__global__ void gpu_kernel_three(int colidx[],
+		long rowstr[],
+		double a[],
+		double p[],
 		double q[]){
 	double* share_data = (double*)extern_share_data;
 
 	int j = (int) ((blockIdx.x*blockDim.x+threadIdx.x) / blockDim.x);
 	int local_id = threadIdx.x;
 
-	int begin = rowstr[j];
-	int end = rowstr[j+1];
+	long begin = rowstr[j];
+	long end = rowstr[j+1];
 	double sum = 0.0;
-	for(int k=begin+local_id; k<end; k+=blockDim.x){
+	for(long k=begin+local_id; k<end; k+=blockDim.x){
 		sum = sum + a[k]*p[colidx[k]];
 	}
 	share_data[local_id] = sum;
@@ -1114,20 +1116,20 @@ static void gpu_kernel_eight(){
 #endif
 }
 
-__global__ void gpu_kernel_eight(int colidx[], 
-		int rowstr[], 
-		double a[], 
-		double r[], 
+__global__ void gpu_kernel_eight(int colidx[],
+		long rowstr[],
+		double a[],
+		double r[],
 		double* z){
 	double* share_data = (double*)extern_share_data;
 
 	int j = (int) ((blockIdx.x*blockDim.x+threadIdx.x) / blockDim.x);
 	int local_id = threadIdx.x;
 
-	int begin = rowstr[j];
-	int end = rowstr[j+1];
+	long begin = rowstr[j];
+	long end = rowstr[j+1];
 	double sum = 0.0;
-	for(int k=begin+local_id; k<end; k+=blockDim.x){
+	for(long k=begin+local_id; k<end; k+=blockDim.x){
 		sum = sum + a[k]*z[colidx[k]];
 	}
 	share_data[local_id] = sum;
@@ -1303,10 +1305,10 @@ static int icnvrt(double x, int ipwr2){
  * ---------------------------------------------------------------------
  */
 static void makea(int n,
-		int nz,
+		long nz,
 		double a[],
 		int colidx[],
-		int rowstr[],
+		long rowstr[],
 		int firstrow,
 		int lastrow,
 		int firstcol,
@@ -1530,7 +1532,7 @@ static void setup_gpu(){
 
 	size_global_data=global_data_elements*sizeof(double);
 	size_colidx_device=NZ*sizeof(int);
-	size_rowstr_device=(NA+1)*sizeof(int);
+	size_rowstr_device=(NA+1)*sizeof(long);
 	size_iv_device=NA*sizeof(int);
 	size_arow_device=NA*sizeof(int);
 	size_acol_device=NAZ*sizeof(int);
@@ -1612,9 +1614,9 @@ static void setup_gpu(){
  */
 static void sparse(double a[],
 		int colidx[],
-		int rowstr[],
+		long rowstr[],
 		int n,
-		int nz,
+		long nz,
 		int nozer,
 		int arow[],
 		int acol[][NONZER+1],
@@ -1623,7 +1625,7 @@ static void sparse(double a[],
 		int lastrow,
 		int nzloc[],
 		double rcond,
-		double shift){	
+		double shift){
 	int nrows;
 
 	/*
@@ -1632,7 +1634,8 @@ static void sparse(double a[],
 	 * [col, row, element] tri
 	 * ---------------------------------------------------
 	 */
-	int i, j, j1, j2, nza, k, kk, nzrow, jcol;
+	int i, j, nzrow, jcol;
+	long j1, j2, nza, k, kk;
 	double size, scale, ratio, va;
 	boolean goto_40;
 
@@ -1671,7 +1674,7 @@ static void sparse(double a[],
 	 */
 	if(nza > nz){
 		printf("Space for matrix elements exceeded in sparse\n");
-		printf("nza, nzmax = %d, %d\n", nza, nz);
+		printf("nza, nzmax = %ld, %ld\n", nza, nz);
 		exit(EXIT_FAILURE);
 	}
 
