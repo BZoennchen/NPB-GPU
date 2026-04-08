@@ -729,7 +729,7 @@ void write_mg_info(FILE *fp, char class_npb)
 	fprintf(fp, "#define NDIM1         %d\n", ndim1);
 	fprintf(fp, "#define NDIM2         %d\n", ndim2);
 	fprintf(fp, "#define NDIM3         %d\n", ndim3);
-	fprintf(fp, "#define ONE           1LL");
+	fprintf(fp, "#define ONE           1LL\n");
 }
 
 /* 
